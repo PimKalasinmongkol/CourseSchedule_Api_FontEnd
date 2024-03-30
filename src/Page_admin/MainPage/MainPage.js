@@ -7,7 +7,8 @@ function MainPage() {
     const [announceText, setAnnounceText] = useState('');
     const [announceTextData, setAnnounceTextData] = useState([]);
     const [loading, setLoading] = useState(false);
-    
+    const [data, setData] = useState([])
+
     const fetchAnnouncement = async () => {
         try {
             setLoading(true);
@@ -24,6 +25,15 @@ function MainPage() {
     useEffect(() => {
         fetchAnnouncement();
     }, []);
+
+
+    useEffect(() => {
+        (async () => {
+            const res = await fetch(`http://localhost:4000/user/getAllUser`)
+            const result = await res.json()
+            setData(result)
+        })()
+    }, [])
 
     const handleAddAnnounce = async (e) => {
         if (!announceText.trim()) {
@@ -96,12 +106,16 @@ function MainPage() {
             <div className='mx-5 my-5 h-screen flex flex-col justify-start text-black font-bold '>
                 <p className='text-3xl '>ยินดีต้อนรับเข้าสู่ระบบ</p>
                 <div className="flex justify-between">
-                    <div className='flex flex-row p-6 items-center w-2/3'>
-                        <FaCircleUser size={60} />
-                        <p className='pl-6 text-rose-color text-2xl '>คุณสมศรี สนุกซุกซน</p>
-                    </div>
+                    {
+                        data.map(item => (
+                            <div className='flex flex-row p-6 items-center w-2/3'>
+                                <FaCircleUser size={60} />
+                                <p className='pl-6 text-rose-color text-2xl '>{item.name} {item.lastname}</p>
+                            </div>
+                        ))
+                    }
                     <div className='flex flex-row p-6 items-center w-1/5'>
-                        
+
                     </div>
 
                 </div>
