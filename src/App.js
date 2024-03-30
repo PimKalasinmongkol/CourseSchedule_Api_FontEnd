@@ -12,21 +12,33 @@ import MainPage from "./Page_admin/MainPage/MainPage";
 import Profile from "./Page_admin/Profile/Profile";
 import SubjectTable from "./Page_admin/SubjectTable/SubjectTable";
 
+import SidebarTeacher from './Page_teacher/SidebarTeacher';
+import FirstTeacher from './Page_teacher/FirstTeacher';
+import MainTeacher from './Page_teacher/MainTeacher';
+import FormTeacher from './Page_teacher/FormTeacher';
+import EditTeacher from './Page_teacher/EditTeacher';
+import ProfileTeacher from "./Page_teacher/ProfileTeacher";
+import SubjectTableTeacher from './Page_teacher/SubjectTableTeacher';
+import LogoutTeacher from './Page_teacher/LogoutTeacher';
+
+
 function App() {
-  const [stage ,setStage] = useState(0)
+  const [email ,setEmail] = useState('')
+  const [stage ,setStage] = useState(null)
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        {stage === 1 && <Route path="/FirstPage" element={<FirstPage />} />} {/* แสดง Sidebar สำหรับ Admin */}
-        {stage === 0 && <Route path="/FirstPage" element={<FirstPage />} />} {/* แสดง Sidebar สำหรับ Teacher */}
+        <Route path="/" element={<Login setEmail={setEmail} setStage={setStage} />} />
+        {stage === 1 && <Route path="/FirstPage" element={<FirstPage email={email} />} />} {/* แสดง Sidebar สำหรับ Admin */}
+        {stage === 0 && <Route path="/FirstTeacher" element={<FirstTeacher email={email} />} />} {/* แสดง Sidebar สำหรับ Teacher */}
+        
         <Route
           path="/*"
           element=
             {
               <div style={{ display: "flex" }}>
               {stage === 1 && <Sidebar />} {/* แสดง Sidebar สำหรับ Admin */}
-              {stage === 0 && <Sidebar />} {/* แสดง Sidebar สำหรับ Teacher */}
+              {stage === 0 && <SidebarTeacher />} {/* แสดง Sidebar สำหรับ Teacher */}
               <Routes>
                 {/* Admin Pages */}
                 <Route path="/Profile" element={<Profile />} />
@@ -37,6 +49,14 @@ function App() {
                 <Route path="/ImportRoom" element={<ImportRoom />} />
                 <Route path="/AllUser" element={<AllUser />} />
                 <Route path="/AddUser" element={<AddUser />} />
+                {/* Admin Pages */}
+                <Route path="/MainTeacher" element={<MainTeacher />} />
+                <Route path="/FormTeacher" element={<FormTeacher />} />
+                <Route path="/EditTeacher" element={<EditTeacher />} />
+                <Route path="/SubjectTableTeacher" element={<SubjectTableTeacher />} />
+                <Route path="/ProfileTeacher" element={<ProfileTeacher />} />
+                <Route path="/LogoutTeacher" element={<LogoutTeacher />} />
+
               </Routes>
             </div>
             } 
