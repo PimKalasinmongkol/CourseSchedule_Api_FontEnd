@@ -45,14 +45,15 @@ function AllUser() {
             });
         }
     }
-    
+
+
     return (
         <div className='flex-row justify-start w-full h-screen'>
 
             <div style={{ flex: 20 }} className='mx-5 my-5'>
-                <div style={{ flex: 5 }} className=" flex flex-row justify-start text-black text-3xl font-bold">
+                <div style={{ flex: 5 }} className="flex flex-row justify-start text-black text-3xl font-bold">
                     <div className='pr-1'>ข้อมูลผู้ใช้งาน</div>
-                    <div className='text-rose-color'>อาจารย์</div>
+                    <div className='text-rose-color'>{filter ? 'อาจารย์' : 'แอดมิน'}</div>
                 </div>
                 <div style={{ flex: 5 }} className='flex flex-row justify-center text-gray-50 text-xl font-bold p-5'>
                     <button onClick={() => setFilter(false)} className='flex flex-col rounded-md bg-button-color  w-1/5 p-5 m-5  hover:bg-rose-800 active:bg-neutral-800 justify-center items-center'>
@@ -62,22 +63,22 @@ function AllUser() {
                     <button onClick={() => setFilter(true)} className='flex flex-col rounded-md bg-button-color  w-1/5 m-5 p-5  hover:bg-rose-800 active:bg-neutral-800 justify-center items-center' >
                         <p>ผู้ดูแลระบบ</p>
                         <p>{data.filter(item => item.isadmin === 1).length}</p>
-
                     </button>
                 </div>
 
+
                 <div style={{ flex: 10 }} className='flex flex-row justify-center'>
                     <div className='bg-from-color rounded-lg  p-5 mx-10 w-9/12'>
-                    <div className="flex justify-between">
-                                <div></div>
-                                <button className="justify-end rounded-full active:bg-neutral-100 hover:bg-button-color ">
-                                    <Link to="/AddUser">
-                                        <IoAddCircleOutline size={40} />
-                                    </Link>
-                                </button>
-                            </div>
+                        <div className="flex justify-between">
+                            <div></div>
+                            <button className="justify-end rounded-full active:bg-neutral-100 hover:bg-button-color ">
+                                <Link to="/AddUser">
+                                    <IoAddCircleOutline size={40} />
+                                </Link>
+                            </button>
+                        </div>
                         <form className=" h-60 touch-none justify-brtween m-4 text-name-color">
-                            
+
                             {
                                 data.map((item) => {
                                     if (filter === true) {

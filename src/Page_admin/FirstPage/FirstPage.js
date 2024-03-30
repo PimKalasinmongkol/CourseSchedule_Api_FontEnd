@@ -13,13 +13,7 @@ function FirstPage({email}) {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch(`http://localhost:4000/user/getUser`,{
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email
-        })
-      })
+      const res = await fetch(`http://localhost:4000/user/getAllUser`)
       const result = await res.json()
       setData(result)
     })()
