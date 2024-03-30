@@ -1,6 +1,24 @@
 import './SubjectTable.css'
+import React, { useState, useEffect } from "react";
 
 function SubjectTable() {
+    const [courseData, setCourseData] = useState([]);
+
+    const fetchSubjects = async () => {
+        try {
+            const res = await fetch('http://localhost:4000/course/getAllCoursesformsum');
+            const data = await res.json();
+            setCourseData(data);
+        } catch (error) {
+            console.error("Error fetching room data:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchSubjects();
+    }, []);
+
+
     return (
         <div className='mx-5 my-5 '>
             <div className="flex text-3xl font-bold">
@@ -62,14 +80,14 @@ function SubjectTable() {
                     </div>
                 </div>
                 <div className=" w-1/4 px-2">
-                        <div>
-                            ข้อผิดพลาด
-                        </div>
-                        <select className="rounded-full px-2  text-sm py-1.5 w-full bg-gray-200" name="year" id="year">
-                            <option value="">All</option>
-                            <option value="2560">Abstract Data Types and Problem Solving</option>
-                            <option value="2565">Algorithm Design and Analysis</option>
-                        </select>
+                    <div>
+                        ข้อผิดพลาด
+                    </div>
+                    <select className="rounded-full px-2  text-sm py-1.5 w-full bg-gray-200" name="year" id="year">
+                        <option value="">All</option>
+                        <option value="2560">Abstract Data Types and Problem Solving</option>
+                        <option value="2565">Algorithm Design and Analysis</option>
+                    </select>
                 </div>
             </div>
             <div className='flex'>
@@ -159,8 +177,6 @@ function SubjectTable() {
                             <th>ชื่อวิชา</th>
                             <th>หน่วยกิต</th>
                             <th>บรรยาย</th>
-                            <th>เวลาเริ่ม</th>
-                            <th>เวลาสิ้นสุด</th>
                             <th>ปฏิบัติ</th>
                             <th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th>
                             <th>ห้อง</th>
@@ -169,14 +185,47 @@ function SubjectTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
+                        {courseData.map((item) => (
+                            <tr key={item.subject_id}>
+                                <td>{
+                                    item.Day === 1
+                                        ? "วันอาทิตย์"
+                                        : item.Day === 2
+                                            ? "วันจันทร์"
+                                            : item.Day === 3
+                                                ? "วันอังคาร"
+                                                : item.Day === 4
+                                                    ? "วันพุธ"
+                                                    : item.Day === 5
+                                                        ? "วันพฤหัสบดี"
+                                                        : item.Day === 6
+                                                            ? "วันศุกร์"
+                                                            : item.Day === 7
+                                                                ? "วันเสาร์"
+                                                                : "ไม่พบวันที่"
+                                }</td>
+                                <td>
+                                    {item.subject_id}-{item.school_year.slice(2, 4)}
+                                </td>
+                                <td>{item.subject_nameEN}</td>
+                                <td>{item.credit}</td>
+                                <td>{
+                                    item.groups === 1
+                                        ? "บรรยาย"
+                                        : ""
+                                }</td>
+                                <td>{
+                                    item.groups === 2
+                                        ? "ปฎิบัติ"
+                                        : ""
+                                }</td>
+                                <td>{item.start_time}</td>
+                                <td>{item.end_time}</td>
+                                <td>{item.room}</td>
+                                <td>{item.student_count}</td>
+                                <td>{item.lecturer}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

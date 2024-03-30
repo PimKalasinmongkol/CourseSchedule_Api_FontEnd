@@ -13,6 +13,7 @@ function ImportSubject() {
   const [credit, setCredit] = useState(0);
   const [subject_id, setSubject_id] = useState("");
   const [type, setType] = useState("");
+  const [group, setGroup] = useState("");
   const [courseData, setCourseData] = useState([]);
   const [filteredCourseData, setFilteredCourseData] = useState([]);
   const [filterValue, setFilterValue] = useState("");
@@ -218,6 +219,10 @@ function ImportSubject() {
       missingFields.push(
         `<span style="color: red; font-weight: bold;">หน่วยกิต</span>`
       );
+    if (!group)
+      missingFields.push(
+        `<span style="color: red; font-weight: bold;">หมู่บรรยาย/ปฏิบัติ</span>`
+      );
 
     if (missingFields.length > 0) {
       event.preventDefault();
@@ -240,11 +245,19 @@ function ImportSubject() {
           subject_nameTH: subject_nameTH,
           credit: credit,
           type: type,
+          group: group,
           school_year: selectedYear,
         }),
       });
       fetchSubjects();
       fetchAvailableYears();
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "อัพโหลดวิชาสำเร็จ",
+        showConfirmButton: false,
+        timer: 1500
+      });
     } catch (e) {
       console.error(e);
     }
@@ -372,10 +385,10 @@ function ImportSubject() {
       const parsedData = XLXS.utils.sheet_to_json(sheet);
 
       const columnNames = Object.keys(parsedData[0]);
-      if (columnNames.length !== 5 || !columnNames.includes("subject_id") || !columnNames.includes("subject_nameEN") || !columnNames.includes("subject_nameTH") || !columnNames.includes("credit") || !columnNames.includes("type")) {
+      if (columnNames.length !== 6 || !columnNames.includes("subject_id") || !columnNames.includes("subject_nameEN") || !columnNames.includes("subject_nameTH") || !columnNames.includes("credit") || !columnNames.includes("type") || !columnNames.includes("group")) {
         Swal.fire({
           title: "รูปแบบไฟล์ไม่ถูกต้อง",
-          text: "กรุณาตรวจสอบไฟล์ Excel ว่ามีหน้าชีทมีคอลัมน์ subject_id,subject_nameEN,subject_nameTH,credit,type อย่างละ 1 คอลัมน์",
+          text: "กรุณาตรวจสอบไฟล์ Excel ว่ามีหน้าชีทมีคอลัมน์ subject_id,subject_nameEN,subject_nameTH,credit,type,group อย่างละ 1 คอลัมน์",
           icon: "error",
           confirmButtonColor: "rgb(227, 1, 55)",
         });
@@ -560,6 +573,22 @@ function ImportSubject() {
 
               <div className="flex flex-row justify-between  w-full items-center py-2">
                 <label for="name">
+                  <p className="pr-1">หมู่บรรยาย/ปฏิบัติ</p>
+                </label>
+                <select
+                  className="rounded-full pl-1 text-sm py-1.5 w-3/5 "
+                  name="year"
+                  id="year"
+                  onChange={(event) => setGroup(event.target.value)}
+                >
+                  <option value="">เลือกหมู่</option>
+                  <option value={"1"}>บรรยาย</option>
+                  <option value={"2"}>ปฏิบัติ</option>
+                </select>
+              </div>
+
+              <div className="flex flex-row justify-between  w-full items-center py-2">
+                <label for="name">
                   <p className="pr-1">หน่วยกิต</p>
                 </label>
                 <input
@@ -671,7 +700,7 @@ function ImportSubject() {
             </tr>
           </thead>
           <tbody>
-          {filteredCourseData.filter((item) =>
+            {filteredCourseData.filter((item) =>
               selectedFilterYear ? item.school_year === selectedFilterYear : true
             )
               .map((item) => (
