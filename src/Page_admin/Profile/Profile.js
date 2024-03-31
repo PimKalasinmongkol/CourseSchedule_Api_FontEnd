@@ -11,7 +11,7 @@ function Profile() {
     })()
   }, [])
   return (
-    <div className='w-full h-screen'>
+    <div className='w-full h-screen bg-white'>
       <div className='mx-5 my-5 flex flex-col justify-start text-black font-bold '>
         <p className='text-3xl '>ข้อมูลบัญชี</p>
 

@@ -23,9 +23,9 @@ function SubjectTable() {
     }, [setCourseData]);
 
     const generatePDF = useReactToPrint({
-        content: ()=>componentPDF.current,
-        documentTitle:"ตารางสอน",
-        onAfterPrint:() =>alert("Data saved in PDF")
+        content: () => componentPDF.current,
+        documentTitle: "ตารางสอน",
+        onAfterPrint: () => alert("Data saved in PDF")
     });
 
 
@@ -36,7 +36,7 @@ function SubjectTable() {
             </div>
             <div className="checkbox-group pt-6">
                 <div className='flex justify-items-stretch '>
-                <label className='pr-4'>
+                    <label className='pr-4'>
                         <input type="radio" name="subjectType" value="" onChange={() => setSelectedSubjectType("")} />
                         ทั้งหมด
                     </label>
@@ -155,35 +155,29 @@ function SubjectTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>วันอาทิตย์</td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td>วันจันทร์</td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td>วันอังคาร</td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td>วันพุธ</td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td>วันพฤหัสดี</td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td>วันศุกร์</td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                        <tr>
-                            <td>วันเสาร์</td>
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
+                        {['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสดี', 'วันศุกร์', 'วันเสาร์'].map((day, index) => (
+                            <tr key={index}>
+                                <td>{day}</td>
+                                {Array.from({ length: 30 }, (_, i) => i + 7).map((hour, hourIndex) => (
+                                    <td key={hourIndex}>
+                                        {courseData
+                                            .filter(item =>
+                                                item.Day === index + 1 && // Day index starts from 1
+                                                item.start_time <= `${hour}:00` && // Check start time
+                                                item.end_time >= `${hour}:30` // Check end time
+                                            )
+                                            .map((subject, subjectIndex) => (
+                                                <div key={subjectIndex}>
+                                                    {subject.subject_nameEN}
+                                                    {/* You can include other subject information here */}
+                                                </div>
+                                            ))}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
                     </tbody>
+
                 </table>
             </div>
             <div className='flex justify-between'>
@@ -191,7 +185,7 @@ function SubjectTable() {
                     หมายเหตุสีแดง คือรายวิชาที่มีการซ้อนทับ
                 </div>
                 <button className="bg-rose-color font-semibold text-white mt-2 p-1 rounded-full w-1/6 hover:bg-red-900 active:bg-neutral-800 shadow-md"
-                onClick={generatePDF}>
+                    onClick={generatePDF}>
                     ส่งออก
                 </button>
             </div>

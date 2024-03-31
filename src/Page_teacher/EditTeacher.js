@@ -49,13 +49,16 @@ const EditTeacher = () => {
             document.removeEventListener('mousedown', handleOutsideClick);
         };
     }, []);
+
+    const selectedSubOptionsString = selectedSubOptions.join(', ');
+
     const formDataWithEdit = courseData.map(item => ({
         ...item,
         start_time: selectedStartTime,
         end_time: selectedEndTime,
         Day: selectedDay,
         section: selectedCsec,
-        major_year: selectedSubOptions,
+        major_year: selectedSubOptionsString,
         student_count: countstd,
         room_number: selectedRoom,
         room_seat: selectedRoomSeat
@@ -63,10 +66,9 @@ const EditTeacher = () => {
 
     console.log(formDataWithEdit);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
     try {
-        if (selectedStartTime < selectedEndTime && countstd < selectedRoomSeat ) {
+        if (selectedStartTime < selectedEndTime && countstd <= selectedRoomSeat ) {
             for (const item of formDataWithEdit) {
                 const response = await axios.post(`http://localhost:4000/course/BookingCourseToMain/${item.subject_id}`, item);
                 console.log(response.data);
@@ -80,7 +82,6 @@ const EditTeacher = () => {
                 });
             }
             // Navigate to FormTeacher page after all requests are done
-            
             navigate("/FormTeacher");
         } else {
             Swal.fire({
@@ -132,23 +133,6 @@ const EditTeacher = () => {
         const inputValue = parseInt(event.target.value, 10);
         if (!isNaN(inputValue) && inputValue >= 0) {
             setCountstd(inputValue);
-        }
-    };
-
-    const success = (e) => {
-        if (selectedStartTime < selectedEndTime) {
-            Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "บันทึกเรียบร้อยแล้ว",
-                showConfirmButton: false,
-                timer: 1500
-            });
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "โปรดเช็คข้อมูลอีกครั้ง",
-            });
         }
     };
 

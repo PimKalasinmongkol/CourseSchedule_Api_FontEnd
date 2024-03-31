@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { FiPlusCircle } from "react-icons/fi";
 import Swal from 'sweetalert2'
 
-
 const FormTeacher = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [tableData, setTableData] = useState([])
@@ -34,7 +33,7 @@ const FormTeacher = () => {
     if (permission === false) {
       Swal.fire({
         title: 'แจ้งเตือนระบบ',
-        text: 'ขณะนี้ระบบไม่อนุญาติให้เพิ่มหรือแก้ไขรายวิชาได้',
+        text: 'ขณะนี้ระบบไม่อนุญาติให้ใช้เพิ่มหรือแก้ไขรายวิชางานได้',
         icon: 'error',
         confirmButtonText: 'ตกลง',
         customClass: {
