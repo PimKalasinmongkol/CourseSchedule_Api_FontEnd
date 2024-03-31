@@ -5,7 +5,7 @@ function Profile() {
   const [data, setData] = useState([])
   useEffect(() => {
     (async () => {
-      const res = await fetch(`http://localhost:4000/user/getAllUser`)
+      const res = await fetch(`http://localhost:4000/user/getUser`)
       const result = await res.json()
       setData(result)
     })()

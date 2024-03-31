@@ -1,9 +1,13 @@
 import './SubjectTable.css'
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useReactToPrint } from 'react-to-print';
 
 function SubjectTable() {
+    const componentPDF = useRef();
     const [courseData, setCourseData] = useState([]);
-
+    const [selectedRoom, setSelectedRoom] = useState("");
+    const [selectedLecturer, setSelectedLecturer] = useState("");
+    const [selectedSubjectType, setSelectedSubjectType] = useState("");
     const fetchSubjects = async () => {
         try {
             const res = await fetch('http://localhost:4000/course/getAllCoursesformsum');
@@ -16,26 +20,36 @@ function SubjectTable() {
 
     useEffect(() => {
         fetchSubjects();
-    }, []);
+    }, [setCourseData]);
+
+    const generatePDF = useReactToPrint({
+        content: ()=>componentPDF.current,
+        documentTitle:"ตารางสอน",
+        onAfterPrint:() =>alert("Data saved in PDF")
+    });
 
 
     return (
-        <div className='mx-5 my-5 '>
+        <div className='mx-5 my-5 ' ref={componentPDF}>
             <div className="flex text-3xl font-bold">
                 <p>ตารางสอน</p>
             </div>
             <div className="checkbox-group pt-6">
                 <div className='flex justify-items-stretch '>
+                <label className='pr-4'>
+                        <input type="radio" name="subjectType" value="" onChange={() => setSelectedSubjectType("")} />
+                        ทั้งหมด
+                    </label>
                     <label className='pr-4'>
-                        <input type="radio" name="subjectType" value="elective" />
+                        <input type="radio" name="subjectType" value="3" onChange={() => setSelectedSubjectType("3")} />
                         วิชาเลือก
                     </label>
                     <label className='pr-4'>
-                        <input type="radio" name="subjectType" value="compulsory-elective" />
+                        <input type="radio" name="subjectType" value="2" onChange={() => setSelectedSubjectType("2")} />
                         วิชาเฉพาะบังคับ
                     </label>
                     <label className='pr-4'>
-                        <input type="radio" name="subjectType" value="core" />
+                        <input type="radio" name="subjectType" value="1" onChange={() => setSelectedSubjectType("1")} />
                         วิชาแกน
                     </label>
                 </div>
@@ -45,9 +59,17 @@ function SubjectTable() {
                     <div className="w-full px-2">
                         <div>อาจารย์</div>
                         <div>
-                            <select className="rounded-full px-2  text-sm py-1.5 w-full bg-gray-200" name="year" id="year">
-                                <option value="">All</option>
-                                <option value="1">พิม กาฬสินธุ์มงคล</option>
+                            <select
+                                className="rounded-full px-2 text-sm py-1.5 w-full bg-gray-200"
+                                name="lecturer"
+                                id="lecturer"
+                                onChange={(e) => setSelectedLecturer(e.target.value)}
+                                value={selectedLecturer}
+                            >
+                                <option value="">ทั้งหมด</option>
+                                {Array.from(new Set(courseData.map(item => item.lecturer))).map((teacher, index) => (
+                                    <option key={index} value={teacher}>{teacher}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -55,7 +77,8 @@ function SubjectTable() {
                         <div>ชั้นปี</div>
                         <div>
                             <select className="rounded-full px-2  text-sm py-1.5 w-full bg-gray-200" name="year" id="year">
-                                <option value="">All</option>
+                                <option value="">ทั้งหมด</option>
+
                                 <option value="2560">1</option>
                                 <option value="2565">2</option>
                                 <option value="2570">3</option>
@@ -66,18 +89,22 @@ function SubjectTable() {
                     <div className="w-full px-2">
                         <div>ห้อง</div>
                         <div>
-                            <select className="rounded-full px-2  text-sm py-1.5 w-full bg-gray-200" name="year" id="year">
-                                <option value="">All</option>
-                                <option value="2560">17203(100)</option>
-                                <option value="2565">17204(100)</option>
-                                <option value="2570">17205(100)</option>
+                            <select
+                                className="rounded-full px-2 text-sm py-1.5 w-full bg-gray-200"
+                                name="room"
+                                id="room"
+                                onChange={(e) => setSelectedRoom(e.target.value)}
+                                value={selectedRoom}
+                            >
+                                <option value="">ทั้งหมด</option>
+                                {Array.from(new Set(courseData.map(item => `${item.room_number} (${item.room_seat})`))).map((roomWithCount, index) => (
+                                    <option key={index} value={roomWithCount}>{roomWithCount}</option>
+                                ))}
                             </select>
+
                         </div>
                     </div>
-                    <div className="w-full ">
-                        <div>ค้นหา</div>
-                        <input className='rounded-full px-2   text-sm py-1.5 w-full bg-gray-200' type="text" id="search-input" placeholder="Search..." />
-                    </div>
+
                 </div>
                 <div className=" w-1/4 px-2">
                     <div>
@@ -163,7 +190,8 @@ function SubjectTable() {
                 <div className='text-orange-700 font-semibold pt-2'>
                     หมายเหตุสีแดง คือรายวิชาที่มีการซ้อนทับ
                 </div>
-                <button className="bg-rose-color font-semibold text-white mt-2 p-1 rounded-full w-1/6 hover:bg-red-900 active:bg-neutral-800 shadow-md">
+                <button className="bg-rose-color font-semibold text-white mt-2 p-1 rounded-full w-1/6 hover:bg-red-900 active:bg-neutral-800 shadow-md"
+                onClick={generatePDF}>
                     ส่งออก
                 </button>
             </div>
@@ -182,50 +210,62 @@ function SubjectTable() {
                             <th>ห้อง</th>
                             <th>จำนวน</th>
                             <th>ชื่ออาจารย์</th>
+                            <th>ประเภท</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {courseData.map((item) => (
-                            <tr key={item.subject_id}>
-                                <td>{
-                                    item.Day === 1
-                                        ? "วันอาทิตย์"
-                                        : item.Day === 2
-                                            ? "วันจันทร์"
-                                            : item.Day === 3
-                                                ? "วันอังคาร"
-                                                : item.Day === 4
-                                                    ? "วันพุธ"
-                                                    : item.Day === 5
-                                                        ? "วันพฤหัสบดี"
-                                                        : item.Day === 6
-                                                            ? "วันศุกร์"
-                                                            : item.Day === 7
-                                                                ? "วันเสาร์"
-                                                                : "ไม่พบวันที่"
-                                }</td>
-                                <td>
-                                    {item.subject_id}-{item.school_year.slice(2, 4)}
-                                </td>
-                                <td>{item.subject_nameEN}</td>
-                                <td>{item.credit}</td>
-                                <td>{
-                                    item.groups === 1
-                                        ? "บรรยาย"
-                                        : ""
-                                }</td>
-                                <td>{
-                                    item.groups === 2
-                                        ? "ปฎิบัติ"
-                                        : ""
-                                }</td>
-                                <td>{item.start_time}</td>
-                                <td>{item.end_time}</td>
-                                <td>{item.room}</td>
-                                <td>{item.student_count}</td>
-                                <td>{item.lecturer}</td>
-                            </tr>
-                        ))}
+                        {courseData
+                            .filter(item =>
+                                (selectedRoom === "" || item.room_number.includes(selectedRoom.split(" (")[0])) &&
+                                (selectedLecturer === "" || item.lecturer === selectedLecturer) &&
+                                (selectedSubjectType === "" || item.type === selectedSubjectType)
+                            )
+                            .map((item) => (
+                                <tr key={item.subject_id}>
+                                    <td>{
+                                        item.Day === 1
+                                            ? "วันอาทิตย์"
+                                            : item.Day === 2
+                                                ? "วันจันทร์"
+                                                : item.Day === 3
+                                                    ? "วันอังคาร"
+                                                    : item.Day === 4
+                                                        ? "วันพุธ"
+                                                        : item.Day === 5
+                                                            ? "วันพฤหัสบดี"
+                                                            : item.Day === 6
+                                                                ? "วันศุกร์"
+                                                                : item.Day === 7
+                                                                    ? "วันเสาร์"
+                                                                    : "ไม่พบวันที่"
+                                    }</td>
+                                    <td>
+                                        {item.subject_id}-{item.school_year.slice(2, 4)}
+                                    </td>
+                                    <td>{item.subject_nameEN}</td>
+                                    <td>{item.credit}</td>
+                                    <td>{
+                                        item.groups === 1
+                                            ? "บรรยาย"
+                                            : ""
+                                    }</td>
+                                    <td>{
+                                        item.groups === 2
+                                            ? "ปฎิบัติ"
+                                            : ""
+                                    }</td>
+                                    <td>{item.start_time}</td>
+                                    <td>{item.end_time}</td>
+                                    <td>{item.room_number}</td>
+                                    <td>{item.student_count}</td>
+                                    <td>{item.lecturer}</td>
+                                    <td>{item.type === "1"
+                                        ? "วิชาแกน"
+                                        : item.type === "2"
+                                            ? "วิชาเฉพาะบังคับ"
+                                            : "วิชาเลือก"}</td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
             </div>

@@ -56,7 +56,6 @@ function App() {
                 <Route path="/SubjectTableTeacher" element={<SubjectTableTeacher />} />
                 <Route path="/ProfileTeacher" element={<ProfileTeacher />} />
                 <Route path="/LogoutTeacher" element={<LogoutTeacher />} />
-
               </Routes>
             </div>
             } 

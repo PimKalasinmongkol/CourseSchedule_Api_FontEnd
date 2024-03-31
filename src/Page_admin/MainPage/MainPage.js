@@ -22,22 +22,24 @@ function MainPage() {
         }
     };
 
-    useEffect(() => {
-        fetchAnnouncement();
-    }, []);
-
-
-    useEffect(() => {
-        (async () => {
-            const res = await fetch(`http://localhost:4000/user/getAllUser`)
+    const fetchSession = async () => {
+        try {
+            const res = await fetch(`http://localhost:4000/user/getUser`)
             const result = await res.json()
             setData(result)
-        })()
-    }, [])
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchAnnouncement();
+        fetchSession();
+    }, [announceText]);
 
     const handleAddAnnounce = async (e) => {
+        e.preventDefault();
         if (!announceText.trim()) {
-            e.preventDefault();
             Swal.fire({
                 position: "center",
                 icon: "warning",
@@ -78,7 +80,7 @@ function MainPage() {
     };
 
 
-    const handleDeleteAnnouncement = async (id) => {
+    const handleDeleteAnnouncement = async (id ,event) => {
         try {
             await fetch(`http://localhost:4000/admin/deleteAnnouncement/${id}`);
             fetchAnnouncement();
@@ -126,7 +128,7 @@ function MainPage() {
 
                 <div className='flex flex-row justify-center h-2/5 my-3 rounded-lg'>
                     <div className='flex flex-row justify-center  my-3 w-9/12 py-3 rounded-lg bg-from-color'>
-                        <form className='flex flex-col h-full  m-1 mx-10 w-full p-2 justify-start '>
+                        <form className='flex flex-col h-full  m-1 mx-10 w-full p-2 justify-start'>
                             {loading ? (
                                 <div className='flex flex-row justify-center text-xl'>
                                     <svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-gray-200 animate-spin dark:text-gray-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -139,7 +141,7 @@ function MainPage() {
                                 announceTextData.map((item) => (
                                     <div key={item.announce_id} className='flex flex-col justify-center' >
                                         <div className='flex justify-end'>
-                                            <button onClick={() => handleDeleteAnnouncement(item.announce_id)} className='rounded hover:bg-neutral-50 active:bg-neutral-800 justify-self-end '>
+                                            <button onClick={(event) => {event.preventDefault(); handleDeleteAnnouncement(item.announce_id); setAnnounceText("")}} className='rounded hover:bg-neutral-50 active:bg-neutral-800 justify-self-end '>
                                                 <TiDelete size={30} color='#7A1E1E' />
                                             </button>
                                         </div>
@@ -156,7 +158,7 @@ function MainPage() {
 
                 <form className='flex flex-row justify-center h-1/5' onSubmit={handleAddAnnounce}>
                     <div className='flex flex-col bg-from-color rounded-lg  p-5 mx-10 w-9/12 justify-start '>
-                        <textarea rows="5" cols="10" className='p-3' onChange={(event) => setAnnounceText(event.target.value)}></textarea>
+                        <textarea rows="5" cols="10" className='p-3' value={announceText} onChange={(event) => setAnnounceText(event.target.value)}></textarea>
                         <div className='flex flex-row justify-end pt-2'>
                             <button type='submit' className='bg-rose-color rounded hover:bg-rose-900 active:bg-neutral-800 justify-self-end p-2 text-white'>
                                 ยืนยัน

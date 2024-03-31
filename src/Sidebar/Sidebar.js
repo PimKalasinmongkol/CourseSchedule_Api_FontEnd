@@ -9,11 +9,18 @@ import Swal from 'sweetalert2';
 import { useNavigate } from "react-router-dom";
 
 function Sidebar() {
-  const [isChecked, setIsChecked] = useState(false)
+  const [isChecked, setIsChecked] = useState(true)
   const navigate = useNavigate();
 
-  const handleCheckboxChange = () => {
+  const handleCheckboxChange = async() => {
     setIsChecked(!isChecked)
+    await fetch('http://localhost:4000/admin/setSystemPermissions',{
+      method: 'POST',
+      headers: {'Content-type':'application/json'},
+      body: JSON.stringify({
+        state: isChecked
+      })
+    })
   }
 
   const Menus = [

@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiPlusCircle } from "react-icons/fi";
+import Swal from 'sweetalert2'
+
 
 const FormTeacher = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [tableData, setTableData] = useState([])
+
+  const [permission ,setPermission] = useState(null)
 
   /* const tableData = [
     { order: 1, subjectCode: '03603212-65', subjectName: 'Abstract Data Types and Problem Solving', credit: 3 },
@@ -17,12 +21,34 @@ const FormTeacher = () => {
       const data = await res.json()
       setTableData(data)
     })()
+
+  }, [])
+  
+  useEffect(() => {
+    (async() => {
+      const res = await fetch('http://localhost:4000/admin/getSystemPermissions')
+      const result = await res.json()
+      setPermission(result.state)
+    })()
+
+    if (permission === false) {
+      Swal.fire({
+        title: 'แจ้งเตือนระบบ',
+        text: 'ขณะนี้ระบบไม่อนุญาติให้เพิ่มหรือแก้ไขรายวิชาได้',
+        icon: 'error',
+        confirmButtonText: 'ตกลง',
+        customClass: {
+          popup: 'denied-theme',
+          title: 'denied-theme',
+          confirmButton: 'denied-theme'
+        }
+      });
+    }
   }, [])
 
 
-
   return (
-    <div className="bg-white h-screen w-screen items-center justify-center">
+    <div className="bg-white h-screen w-screen items-center justify-center" >
       <div>
         <h1 className='font-IBM font-bold text-black text-4xl mt-10 ml-10 '>แบบฟอร์มข้อมูลรายวิชา</h1>
       </div>
@@ -46,7 +72,7 @@ const FormTeacher = () => {
               <th className="border border-black p-2 w-96">ชื่อวิชาภาษาอังกฤษ</th>
               <th className="border border-black p-2 w-96">ชื่อวิชาภาษาไทย</th>
               <th className="border border-black p-2 text-center">หน่วยกิต</th>
-              <th className="border border-black p-2 text-center">เพิ่มรายวิชา</th>
+              <th className="border border-black p-2 text-center" style={{display: permission ? 'block' : 'none'}}>เพิ่มรายวิชา</th>
             </tr>
           </thead>
           <tbody>
@@ -63,7 +89,7 @@ const FormTeacher = () => {
                   <td className="border border-black p-2">{row.subject_nameEN}</td>
                   <td className="border border-black p-2">{row.subject_nameTH}</td>
                   <td className="border border-black p-2">{row.credit}</td>
-                  <td className="border border-black p-2">
+                  <td className="border border-black p-2" style={{display: permission ? 'block' : 'none'}}>
                     <Link to={`/EditTeacher?subjectID=${row.subject_id}`} className="text-red-900 flex items-center justify-center">
                       <FiPlusCircle />
                     </Link>

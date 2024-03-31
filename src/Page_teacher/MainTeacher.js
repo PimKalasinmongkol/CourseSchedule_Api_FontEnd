@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { LuCat } from "react-icons/lu";
+import {useState ,useEffect} from 'react'
 
 const MainTeacher = () => {
     const userData = {
@@ -10,9 +11,15 @@ const MainTeacher = () => {
         major: 'วิศวกรรมคอมพิวเตอร์และสารสนเทศศาสตร์',
     };
 
-    const newsdata = [
-        { new1: 'สวัสดีชาวโลก วันนี้เป็นวันที่จะได้ลงทะเบียนวันสุดท้าย โปรดลงทะเบียนให้เรียบร้อยตามที่กำหนดด้วยเน้ออ' },
-    ];
+    const [newsdata ,setNewsdata] = useState([])
+
+    useEffect(() => {
+        (async() => {
+            const res = await fetch('http://localhost:4000/admin/getAnnouncement')
+            const result = await res.json()
+            setNewsdata(result)
+        })()
+    }, [])
 
     return (
         <div className="bg-white w-screen h-screen">
@@ -44,7 +51,14 @@ const MainTeacher = () => {
             <div className='bg-rose-100 w-[750px] h-2/4 ml-72 mt-32 rounded-[20px]'>
                 <div className="ml-10 mt-10 text-rose-800 text-2xl font-IBM p-2 ">
                     <p className="text-3xl font-bold mb-2 text-center mt-5">ประกาศเพิ่มเติม</p>
-                    <p className="text-xl font-IBM mt-4">{newsdata[0].new1}</p>
+                    {
+                        newsdata.map(news => (
+                            <div className='flex flex-row justify-between px-5'>
+                                <p className="text-xl font-IBM mt-4">{news.announce_text}</p>
+                                <p className="text-xl font-IBM mt-4">{news.announce_date.slice(0,19).replace("T"," ")}</p>
+                            </div>
+                        ))
+                    }
                 </div>
             </div>
         </div>

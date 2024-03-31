@@ -53,7 +53,7 @@ function AllUser() {
             <div style={{ flex: 20 }} className='mx-5 my-5'>
                 <div style={{ flex: 5 }} className="flex flex-row justify-start text-black text-3xl font-bold">
                     <div className='pr-1'>ข้อมูลผู้ใช้งาน</div>
-                    <div className='text-rose-color'>{filter ? 'อาจารย์' : 'แอดมิน'}</div>
+                    <div className='text-rose-color'>{filter ? 'แอดมิน' : 'อาจารย์'}</div>
                 </div>
                 <div style={{ flex: 5 }} className='flex flex-row justify-center text-gray-50 text-xl font-bold p-5'>
                     <button onClick={() => setFilter(false)} className='flex flex-col rounded-md bg-button-color  w-1/5 p-5 m-5  hover:bg-rose-800 active:bg-neutral-800 justify-center items-center'>
