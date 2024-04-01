@@ -2,12 +2,18 @@ import './SubjectTable.css'
 import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from 'react-to-print';
 
+import { Link } from "react-router-dom";
+
 function SubjectTable() {
     const componentPDF = useRef();
     const [courseData, setCourseData] = useState([]);
+    const [selectedError, setSelectedError] = useState("");
     const [selectedRoom, setSelectedRoom] = useState("");
     const [selectedLecturer, setSelectedLecturer] = useState("");
+    const [selectedMajorYear, setSelectedMajorYear] = useState("");
     const [selectedSubjectType, setSelectedSubjectType] = useState("");
+
+
     const fetchSubjects = async () => {
         try {
             const res = await fetch('http://localhost:4000/course/getAllCoursesformsum');
@@ -19,8 +25,12 @@ function SubjectTable() {
     };
 
     useEffect(() => {
-        fetchSubjects();
-    }, [setCourseData]);
+        fetchSubjects(); // เรียกใช้ฟังก์ชั่น fetchSubjects เพื่อโหลดข้อมูลคอร์สเมื่อคอมโพเนนต์ตั้งค่าคอร์สทั้งหมด
+        const interval = setInterval(fetchSubjects, 600000); // เรียกใช้ fetchSubjects ทุก 10 นาที (600,000 มิลลิวินาที)
+
+        return () => clearInterval(interval); // เมื่อคอมโพเนนต์ถูกทำลาย ให้เคลียร์ interval เพื่อป้องกันการรั่วไหลของหน่วยความจำ
+    }, []);
+
 
     const generatePDF = useReactToPrint({
         content: () => componentPDF.current,
@@ -28,9 +38,243 @@ function SubjectTable() {
         onAfterPrint: () => alert("Data saved in PDF")
     });
 
+    const getClassname = (item) => {
+        const duplicatesByTeacher = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id !== item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.lecturer === item.lecturer
+
+        ).length > 0;
+
+
+        const duplicatesByRoom = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id !== item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.room_number === item.room_number
+        ).length > 0;
+
+        const duplicatesBySubjectType = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id !== item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                (item.type === "1" || item.type === "2") && // Ensure item.type is either "1" or "2"
+                (course.type === "1" || course.type === "2")
+
+        ).length > 0;
+
+        const duplicatesSubjecybyTeacher = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id === item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.lecturer === item.lecturer
+        ).length > 1;
+
+        const duplicatesSubjecybyRoom = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id === item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.room_number === item.room_number
+        ).length > 1;
+
+        const duplicatesSubjecybyRoomandTeacher = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id === item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.room_number === item.room_number &&
+                course.lecturer === item.lecturer
+
+        ).length > 1;
+
+        if (duplicatesSubjecybyRoomandTeacher || duplicatesSubjecybyTeacher || duplicatesSubjecybyRoom) {
+            return "text-red-600";
+        }
+
+
+        else if (duplicatesByTeacher) {
+            return "text-orange-600";
+        }
+
+        else if (duplicatesByRoom) {
+            return "text-green-600";
+        }
+
+        else if (duplicatesBySubjectType) {
+            return "text-yellow-600";
+        }
+
+        return "";
+    };
+
+    const gettableClassname = (item) => {
+        const duplicatesByTeacher = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id !== item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.lecturer === item.lecturer
+
+        ).length > 0;
+
+        const duplicatesByRoom = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id !== item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.room_number === item.room_number
+        ).length > 0;
+
+        const duplicatesBySubjectType = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id !== item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                (item.type === "1" || item.type === "2") && // Ensure item.type is either "1" or "2"
+                (course.type === "1" || course.type === "2")
+        ).length > 0;
+
+
+        const duplicatesSubjecybyTeacher = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id === item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.lecturer === item.lecturer
+        ).length > 1;
+
+
+        const duplicatesSubjecybyRoom = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id === item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.room_number === item.room_number
+        ).length > 1;
+
+
+        const duplicatesSubjecybyRoomandTeacher = courseData.filter(
+            course =>
+                course.Day === item.Day &&
+                course.subject_id === item.subject_id &&
+                (
+                    (course.start_time >= item.start_time && course.start_time < item.end_time) ||
+                    (course.end_time > item.start_time && course.end_time <= item.end_time) ||
+                    (course.start_time <= item.start_time && course.end_time >= item.end_time)
+                ) &&
+                course.lecturer === item.lecturer &&
+                course.room_number === item.room_number
+        ).length > 1;
+
+        /* if (duplicatesByTeacher || duplicatesByRoom || duplicatesBySubjectType) {
+            return "bg-red-600";
+        } */
+        if (duplicatesSubjecybyRoomandTeacher || duplicatesSubjecybyTeacher || duplicatesSubjecybyRoom) {
+            return "bg-red-600";
+        }
+
+        else if (duplicatesByTeacher) {
+            return "bg-orange-600";
+        }
+
+        else if (duplicatesByRoom) {
+            return "bg-green-600";
+        }
+
+        else if (duplicatesBySubjectType) {
+            return "bg-yellow-600";
+        }
+
+        return "";
+    };
+
+
+    const renderDay = (day) => {
+        switch (day) {
+            case 1:
+                return "วันอาทิตย์";
+            case 2:
+                return "วันจันทร์";
+            case 3:
+                return "วันอังคาร";
+            case 4:
+                return "วันพุธ";
+            case 5:
+                return "วันพฤหัสบดี";
+            case 6:
+                return "วันศุกร์";
+            case 7:
+                return "วันเสาร์";
+            default:
+                return "ไม่พบวันที่";
+        }
+    };
+
+    const renderTime = (time) => {
+        // You can format the time here as needed
+        return time;
+    };
+
+    const renderSubjectType = (type) => {
+        return type === "1" ? "วิชาแกน" : type === "2" ? "วิชาเฉพาะบังคับ" : "วิชาเลือก";
+    };
+
+
+
+
 
     return (
-        <div className='mx-5 my-5 ' ref={componentPDF}>
+        <div className='px-5 py-5 bg-white' ref={componentPDF}>
             <div className="flex text-3xl font-bold">
                 <p>ตารางสอน</p>
             </div>
@@ -76,13 +320,17 @@ function SubjectTable() {
                     <div className="w-full px-2">
                         <div>ชั้นปี</div>
                         <div>
-                            <select className="rounded-full px-2  text-sm py-1.5 w-full bg-gray-200" name="year" id="year">
+                            <select
+                                className="rounded-full px-2 text-sm py-1.5 w-full bg-gray-200"
+                                name="major_year"
+                                id="major_year"
+                                onChange={(e) => setSelectedMajorYear(e.target.value)}
+                                value={selectedMajorYear}
+                            >
                                 <option value="">ทั้งหมด</option>
-
-                                <option value="2560">1</option>
-                                <option value="2565">2</option>
-                                <option value="2570">3</option>
-                                <option value="2570">4</option>
+                                {Array.from(new Set(courseData.flatMap(item => item.major_year.split(',')))).map((major_year, index) => (
+                                    <option key={index} value={major_year.trim()}>{major_year.trim()}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -106,16 +354,29 @@ function SubjectTable() {
                     </div>
 
                 </div>
-                <div className=" w-1/4 px-2">
+                <div className="w-1/4 px-2">
                     <div>
                         ข้อผิดพลาด
                     </div>
-                    <select className="rounded-full px-2  text-sm py-1.5 w-full bg-gray-200" name="year" id="year">
-                        <option value="">All</option>
-                        <option value="2560">Abstract Data Types and Problem Solving</option>
-                        <option value="2565">Algorithm Design and Analysis</option>
+                    <select
+                        className="rounded-full px-2 text-sm py-1.5 w-full bg-gray-200"
+                        name="error"
+                        id="error"
+                        onChange={(e) => setSelectedError(e.target.value)}
+                        value={selectedError}
+                    >
+                        <option value="">ทั้งหมด</option>
+                        {courseData.filter(item => {
+                            const classname = gettableClassname(item);
+                            return classname === "bg-red-600" || classname === "bg-orange-600" || classname === "bg-yellow-600" || classname === "bg-green-600";
+                        }).map((subject, index) => (
+                            <option key={index} value={subject.subject_id}>{subject.subject_nameEN}</option>
+                        ))}
                     </select>
                 </div>
+
+
+
             </div>
             <div className='flex'>
                 <table>
@@ -155,25 +416,44 @@ function SubjectTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสดี', 'วันศุกร์', 'วันเสาร์'].map((day, index) => (
-                            <tr key={index}>
-                                <td>{day}</td>
-                                {Array.from({ length: 30 }, (_, i) => i + 7).map((hour, hourIndex) => (
-                                    <td key={hourIndex}>
-                                        {courseData
-                                            .filter(item =>
-                                                item.Day === index + 1 && // Day index starts from 1
-                                                item.start_time <= `${hour}:00` && // Check start time
-                                                item.end_time >= `${hour}:30` // Check end time
-                                            )
-                                            .map((subject, subjectIndex) => (
-                                                <div key={subjectIndex}>
-                                                    {subject.subject_nameEN}
-                                                    {/* You can include other subject information here */}
-                                                </div>
+                        {[1, 2, 3, 4, 5, 6, 7].map(day => (
+                            <tr key={day}>
+                                <td>
+                                    {day === 1 ? "วันอาทิตย์" :
+                                        day === 2 ? "วันจันทร์" :
+                                            day === 3 ? "วันอังคาร" :
+                                                day === 4 ? "วันพุธ" :
+                                                    day === 5 ? "วันพฤหัสบดี" :
+                                                        day === 6 ? "วันศุกร์" :
+                                                            day === 7 ? "วันเสาร์" :
+                                                                "ไม่พบวันที่"}
+                                </td>
+                                {[...Array(30)].map((_, index) => {
+                                    const startTime = index * 0.5 + 7; // Calculate start time
+                                    const endTime = startTime + 0.25; // Calculate end time
+                                    const subjects = courseData.filter(item =>
+                                        item.Day === day &&
+                                        item.start_time <= startTime &&
+                                        item.end_time >= endTime &&
+                                        (selectedRoom === "" || item.room_number.includes(selectedRoom.split(" (")[0])) &&
+                                        (selectedLecturer === "" || item.lecturer === selectedLecturer) &&
+                                        (selectedSubjectType === "" || item.type === selectedSubjectType) &&
+                                        (selectedMajorYear === "" || item.major_year.includes(selectedMajorYear)) &&
+                                        (selectedError === "" || selectedError === item.subject_id || (gettableClassname(item) === "bg-red-600" || gettableClassname(item) === "bg-orange-600" || gettableClassname(item) === "bg-yellow-600" || gettableClassname(item) === "bg-white-600" || gettableClassname(item) === "bg-blue-600" || gettableClassname(item) === "bg-green-600")))
+                                    return (
+                                        <td key={index}>
+                                            {subjects.map(subject => (
+                                                <Link to={`/EditSubject?subjectID=${subject.subject_id}`} key={subject.subject_id}>
+                                                    <button style={{ width: "100%" }} className={gettableClassname(subject)}>
+                                                        {subject.subject_id}-{subject.school_year.slice(2, 4)}
+                                                        <br />
+                                                        {subject.subject_nameEN}
+                                                    </button>
+                                                </Link>
                                             ))}
-                                    </td>
-                                ))}
+                                        </td>
+                                    );
+                                })}
                             </tr>
                         ))}
                     </tbody>
@@ -181,8 +461,14 @@ function SubjectTable() {
                 </table>
             </div>
             <div className='flex justify-between'>
-                <div className='text-orange-700 font-semibold pt-2'>
-                    หมายเหตุสีแดง คือรายวิชาที่มีการซ้อนทับ
+                <div class="grid grid-cols-3 gap-3 font-semibold">
+                    <div>หมายเหตุข้อผิดพลาด</div>
+                    <div className='text-red-600'>*สีแดง คือ วิชา</div>
+                    <div className='text-orange-600'>*สีส้ม คือ อาจารย์</div>
+                    <div></div>
+
+                    <div className='text-green-600'>*สีเขียว คือ ห้อง</div>
+                    <div className='text-yellow-600'>*สีเหลือง คือ ประเภท</div>
                 </div>
                 <button className="bg-rose-color font-semibold text-white mt-2 p-1 rounded-full w-1/6 hover:bg-red-900 active:bg-neutral-800 shadow-md"
                     onClick={generatePDF}>
@@ -198,13 +484,13 @@ function SubjectTable() {
                             <th>รหัสวิชา</th>
                             <th>ชื่อวิชา</th>
                             <th>หน่วยกิต</th>
-                            <th>บรรยาย</th>
-                            <th>ปฏิบัติ</th>
+                            <th>การสอน</th>
                             <th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th>
                             <th>ห้อง</th>
                             <th>จำนวน</th>
                             <th>ชื่ออาจารย์</th>
                             <th>ประเภท</th>
+                            <th>ชั้นปี</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -212,55 +498,37 @@ function SubjectTable() {
                             .filter(item =>
                                 (selectedRoom === "" || item.room_number.includes(selectedRoom.split(" (")[0])) &&
                                 (selectedLecturer === "" || item.lecturer === selectedLecturer) &&
-                                (selectedSubjectType === "" || item.type === selectedSubjectType)
+                                (selectedSubjectType === "" || item.type === selectedSubjectType) &&
+                                (selectedMajorYear === "" || item.major_year.includes(selectedMajorYear)) &&
+                                (selectedError === "" || (gettableClassname(item) === "bg-red-600" || gettableClassname(item) === "bg-orange-600" || gettableClassname(item) === "bg-yellow-600" || gettableClassname(item) === "bg-green-600"))
+
                             )
                             .map((item) => (
-                                <tr key={item.subject_id}>
-                                    <td>{
-                                        item.Day === 1
-                                            ? "วันอาทิตย์"
-                                            : item.Day === 2
-                                                ? "วันจันทร์"
-                                                : item.Day === 3
-                                                    ? "วันอังคาร"
-                                                    : item.Day === 4
-                                                        ? "วันพุธ"
-                                                        : item.Day === 5
-                                                            ? "วันพฤหัสบดี"
-                                                            : item.Day === 6
-                                                                ? "วันศุกร์"
-                                                                : item.Day === 7
-                                                                    ? "วันเสาร์"
-                                                                    : "ไม่พบวันที่"
-                                    }</td>
-                                    <td>
-                                        {item.subject_id}-{item.school_year.slice(2, 4)}
-                                    </td>
-                                    <td>{item.subject_nameEN}</td>
-                                    <td>{item.credit}</td>
-                                    <td>{
-                                        item.groups === 1
+                                <tr key={item.subject_id} className={getClassname(item)}>
+
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderDay(item.Day)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.subject_id}-{item.school_year.slice(2, 4)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.subject_nameEN}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.credit}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>
+                                        {item.group === 1
                                             ? "บรรยาย"
-                                            : ""
-                                    }</td>
-                                    <td>{
-                                        item.groups === 2
-                                            ? "ปฎิบัติ"
-                                            : ""
-                                    }</td>
-                                    <td>{item.start_time}</td>
-                                    <td>{item.end_time}</td>
-                                    <td>{item.room_number}</td>
-                                    <td>{item.student_count}</td>
-                                    <td>{item.lecturer}</td>
-                                    <td>{item.type === "1"
-                                        ? "วิชาแกน"
-                                        : item.type === "2"
-                                            ? "วิชาเฉพาะบังคับ"
-                                            : "วิชาเลือก"}</td>
+                                            : item.group === 2
+                                                ? "ปฎิบัติ"
+                                                : ""}</Link>
+                                    </td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderTime(item.start_time)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderTime(item.end_time)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.room_number}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.student_count}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.lecturer}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderSubjectType(item.type)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.major_year}</Link></td>
+
                                 </tr>
                             ))}
                     </tbody>
+
                 </table>
             </div>
         </div>

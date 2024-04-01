@@ -225,7 +225,7 @@ function ImportRoom() {
     };
 
     return (
-        <div className="mx-5 my-5 w-full ">
+        <div className="px-5 py-5 w-full bg-white">
             <div className="flex text-3xl font-bold">
                 <p>นำเข้าห้องเรียน</p>
             </div>

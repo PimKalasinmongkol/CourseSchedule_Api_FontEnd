@@ -418,7 +418,7 @@ function ImportSubject() {
   }
 
   return (
-    <div className="w-full mx-5 my-5">
+    <div className="w-full px-5 py-5 bg-white">
       <div className="flex text-3xl font-bold">
         <p>นำเข้าหลักสูตร</p>
       </div>
@@ -685,7 +685,7 @@ function ImportSubject() {
                 <div className="justify-center items-center">
                   <div className="flex flex-row">
                     <button
-                      className="p-2 my-2 mx-2 bg-red-300 rounded-lg w-1/2 hover:bg-zinc-500"
+                      className="p-2  my-2 mx-2 bg-red-300 rounded-lg w-1/2 hover:bg-zinc-500"
                       type="button"
                       onClick={handleCheckAll_delete}
                     >
@@ -759,7 +759,7 @@ function ImportSubject() {
                     <label key={item.subject_id}>
                       <input
                         type="checkbox"
-                        className="accent-rose-color w-7 h-7"
+                        className="accent-rose-color w-7 h-7  bg-white"
                         onChange={(event) =>
                           event.target.checked
                             ? handleCheckboxChange_delete(item.subject_id)

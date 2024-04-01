@@ -104,7 +104,7 @@ function MainPage() {
     };
 
     return (
-        <div className='w-screen'>
+        <div className='w-screen bg-white'>
             <div className='mx-5 my-5 h-screen flex flex-col justify-start text-black font-bold '>
                 <p className='text-3xl '>ยินดีต้อนรับเข้าสู่ระบบ</p>
                 <div className="flex justify-between">
@@ -158,7 +158,7 @@ function MainPage() {
 
                 <form className='flex flex-row justify-center h-1/5' onSubmit={handleAddAnnounce}>
                     <div className='flex flex-col bg-from-color rounded-lg  p-5 mx-10 w-9/12 justify-start '>
-                        <textarea rows="5" cols="10" className='p-3' value={announceText} onChange={(event) => setAnnounceText(event.target.value)}></textarea>
+                        <textarea rows="5" cols="10" className='p-3 bg-white' value={announceText} onChange={(event) => setAnnounceText(event.target.value)}></textarea>
                         <div className='flex flex-row justify-end pt-2'>
                             <button type='submit' className='bg-rose-color rounded hover:bg-rose-900 active:bg-neutral-800 justify-self-end p-2 text-white'>
                                 ยืนยัน

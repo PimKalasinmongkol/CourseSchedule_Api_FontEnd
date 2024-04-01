@@ -56,7 +56,7 @@ function AddUser() {
         }
     }
     return (
-        <div className='mx-5 my-5 w-full h-screen'>
+        <div className='mx-5 my-5 w-full h-screen bg-white'>
             <div className='flex flex-col items-center justify-center'>
                 <p className='text-3xl font-bold p-5 ' >บัญชีผู้ใช้งาน</p>
 
