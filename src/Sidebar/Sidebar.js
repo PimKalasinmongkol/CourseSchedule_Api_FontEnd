@@ -27,7 +27,7 @@ function Sidebar() {
     { title: 'หน้าหลัก', link: '/MainPage', icon: <MdOutlineDashboard /> },
     { title: 'ตารางสอน', icon: <BsChatLeftText />, link: '/SubjectTable' },
     { title: 'นำเข้าหลักสูตร', icon: <CgInsertAfterR />, link: '/ImportSubject' },
-    { title: 'นำเข้าชั้นเรียน', icon: <MdOutlineDomainAdd />, link: '/ImportRoom' },
+    { title: 'นำเข้าห้องเรียน', icon: <MdOutlineDomainAdd />, link: '/ImportRoom' },
     { title: 'ข้อมูลผู้ใช้งาน', icon: <FaUserCheck />, link: '/AllUser' },
   ];
 
@@ -43,7 +43,7 @@ function Sidebar() {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "ออกจาระบบ",
+      confirmButtonText: "ออกจากระบบ",
       cancelButtonText: "ยกเลิก"
     }).then((result) => {
       if (result.isConfirmed) {

@@ -339,7 +339,7 @@ function ImportRoom() {
                 <table className="table-auto">
                     <thead>
                         <tr>
-                            <th>สถานะ</th>
+                            
                             <th>ชื่อห้องเรียน</th>
                             <th>จำนวนนักศึกษา</th>
 
@@ -369,14 +369,6 @@ function ImportRoom() {
                         {
                             filteredCourseData.map((item) => (
                                 <tr key={item.room_number}>
-                                    <td>
-                                        {
-                                            item.room_isFull === 1 ?
-                                                <p className="bg-green-600 text-white m-2 py-1 rounded-md">จองแล้ว</p>
-                                                :
-                                                <p className=" bg-red-600 text-white m-2 py-1 rounded-md">ห้องว่าง</p>
-                                        }
-                                    </td>
                                     <td>
                                         <p>{item.room_number}</p>
                                     </td>

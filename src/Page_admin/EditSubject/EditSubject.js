@@ -14,23 +14,44 @@ function EditSubject() {
 
     const [start_time, setStart_time] = useState('')
     const [end_time, setEnd_time] = useState('')
-    const [day, setDay] = useState(null)
+    const [day, setDay] = useState('')
     const [room_number, setRoom_number] = useState('')
+    const [studentCountLoading, setStudentCountLoading] = useState(true);
+    const [student_count, setStudent_count] = useState(0);
+    const [section, setSection] = useState('');
 
     useEffect(() => {
-        (async function () {
-            const res = await fetch(`http://localhost:4000/course/getCoursesformsum/${subjectID}`)
-            const result = await res.json()
-            setCourseData(result)
+        async function fetchCourseData() {
+            try {
+                const res = await fetch(`http://localhost:4000/course/getCoursesformsum/${subjectID}`);
+                const result = await res.json();
+                const uniqueCourses = new Set(result);
+                setCourseData(Array.from(uniqueCourses));
 
+                // ทำการกำหนดค่า student_count โดยใช้ข้อมูลที่ได้จากการ fetch
+                const studentCount = // หาก student_count มีค่าใน result จะเลือกค่านั้น ไม่งั้นก็ให้เป็น 0
+                    result.length > 0 && result[0].hasOwnProperty('student_count')
+                        ? result[0].student_count
+                        : 0;
+                setStudent_count(studentCount);
+                setStudentCountLoading(false); // ทำเครื่องหมายว่า fetch ข้อมูล student_count เสร็จสิ้น
+            } catch (error) {
+                console.error('Error fetching course data:', error);
+            }
+        }
+        fetchCourseData();
+    }, [subjectID]);
+
+    useEffect(() => {
+        (async () => {
             const resroom = await fetch(`http://localhost:4000/room/getAllRoom`)
             const resultroom = await resroom.json()
             setRoomData(resultroom)
         })()
-
-
-
-    }, []);
+        courseData.map(item => {
+            console.log(item);
+        })
+    }, [])
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -52,7 +73,7 @@ function EditSubject() {
                 timer: 1500
             });
             return
-        }else if (!day) {
+        } else if (!day) {
             Swal.fire({
                 position: "center",
                 icon: "warning",
@@ -61,7 +82,7 @@ function EditSubject() {
                 timer: 1500
             });
             return
-        }else if (!room_number) {
+        } else if (!room_number) {
             Swal.fire({
                 position: "center",
                 icon: "warning",
@@ -70,20 +91,49 @@ function EditSubject() {
                 timer: 1500
             });
             return
+            
+        }else if (!section) {
+            Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "กรุณาเลือกเซค",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return
+            
+        }else if (!student_count) {
+            Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "กรุณาเลือกนักเรียน",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return
+            
         }
         try {
             await fetch('http://localhost:4000/course/editCourse', {
-                method: 'POST',
-                headers: { 'Content-type': 'application/json' },
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     subject_id: subjectID,
                     start_time: start_time,
                     end_time: end_time,
                     Day: day,
-                    room_number: room_number
+                    room_number: room_number,
+                    section: parseInt(section),
+                    student_count: student_count,
                 })
             })
-
+            console.log("subject id : " + subjectID);
+            console.log("start_time : " + start_time);
+            console.log("end_time : " + end_time);
+            console.log("day : " + day);
+            console.log("room : " + room_number);
+            console.log("section : " + section);
+            console.log("student_count : " + student_count);
         } catch (error) {
             console.error('Error updating data:', error);
         }
@@ -95,7 +145,6 @@ function EditSubject() {
             timer: 1500
         });
         navigate("/SubjectTable")
-
     }
     // Navigate to FormTeacher page after all requests are done
 
@@ -136,14 +185,13 @@ function EditSubject() {
         }
     }
 
-
     return (
-        <div className="h-screen w-screen px-5 py-5">
+        <div className="h-screen w-screen px-5 py-5 bg-slate-100">
             <div className="flex text-3xl font-bold">
                 <p>แก้ไขข้อมูล</p>
             </div>
             {courseData.map((item) => (
-                <form className="flex flex-row justify-center w-full" onSubmit={handleSubmit}>
+                <form className="flex flex-row justify-center w-full" onSubmit={handleSubmit} key={item.subject_id}>
                     <div className="  w-full m-5 p-10 flex flex-col">
                         <div className="font-semibold text-xl">รหัสวิชา</div>
                         <input className=" rounded-xl bg-from-color p-2 mb-5" value={item.subject_id} disabled></input>
@@ -158,7 +206,7 @@ function EditSubject() {
                             </div>
                             <div className="w-full">
                                 <div className="font-semibold text-xl">ห้องเรียน</div>
-                                <select className=" rounded-xl bg-from-color w-full p-2 mb-5" value={item.room_number} onChange={(event) => setRoom_number(event.target.value)}>
+                                <select className=" rounded-xl bg-from-color w-full p-2 mb-5" onChange={(event) => setRoom_number(event.target.value)}>
                                     {roomData.map((room, index) => (
                                         <option key={index} value={room.room_number} data-seat={room.room_seat}>
                                             {`${room.room_number} (${room.room_seat})`}
@@ -181,13 +229,20 @@ function EditSubject() {
                                         ? "วิชาเฉพาะ"
                                         : item.type === '3' ? "วิชาเลือก" : ""}></input>
                             </div>
-                            <div>
-                                <div className="font-semibold text-xl">หมู่เรียน</div>
-                                <input className=" rounded-lg p-1 m-1" disabled type="text" value={item.section}></input>
+                            
+                            <div className="w-full mr-2">
+                                <div className="font-semibold text-xl ">หมู่เรียน</div>
+                                <select className=" rounded-lg p-1 m-1 w-full  " onChange={(event) => setSection(event.target.value)}>
+                                    <option value={item.section}>{item.section}</option>
+                                    <option value={item.section + 1}>{item.section + 1}</option>
+                                    <option value={item.section + 2}>{item.section + 2}</option>
+                                    <option value={item.section + 3}>{item.section + 3}</option>
+                                    <option value={item.section + 4}>{item.section + 4}</option>
+                                </select>
                             </div>
                             <div>
                                 <div className="font-semibold text-xl">จำนวนที่นั่ง</div>
-                                <input className=" rounded-lg p-1 m-1" disabled type="text" value={item.room_seat}></input>
+                                <input className=" rounded-lg p-1 m-1" type="text" value={student_count} onChange={(event) => setStudent_count(event.target.value)}></input>
                             </div>
                         </div>
                         <div className="bg-from-color rounded-lg p-3 py-3 my-6">
@@ -233,10 +288,7 @@ function EditSubject() {
                             </button>
                         </Link>
                     </div>
-
                 </form>
-
-
             ))}
 
         </div>

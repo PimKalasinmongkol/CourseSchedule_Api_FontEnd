@@ -26,9 +26,7 @@ function SubjectTable() {
 
     useEffect(() => {
         fetchSubjects(); // เรียกใช้ฟังก์ชั่น fetchSubjects เพื่อโหลดข้อมูลคอร์สเมื่อคอมโพเนนต์ตั้งค่าคอร์สทั้งหมด
-        const interval = setInterval(fetchSubjects, 600000); // เรียกใช้ fetchSubjects ทุก 10 นาที (600,000 มิลลิวินาที)
 
-        return () => clearInterval(interval); // เมื่อคอมโพเนนต์ถูกทำลาย ให้เคลียร์ interval เพื่อป้องกันการรั่วไหลของหน่วยความจำ
     }, []);
 
 
@@ -117,6 +115,13 @@ function SubjectTable() {
 
         ).length > 1;
 
+        const duplicatesSec = courseData.filter(
+            course =>
+                course.subject_id === item.subject_id &&
+
+                course.section === item.section
+        ).length > 1;
+
         if (duplicatesSubjecybyRoomandTeacher || duplicatesSubjecybyTeacher || duplicatesSubjecybyRoom) {
             return "text-red-600";
         }
@@ -124,6 +129,10 @@ function SubjectTable() {
 
         else if (duplicatesByTeacher) {
             return "text-orange-600";
+        }
+
+        else if (duplicatesSec) {
+            return "text-blue-600";
         }
 
         else if (duplicatesByRoom) {
@@ -216,6 +225,13 @@ function SubjectTable() {
                 course.room_number === item.room_number
         ).length > 1;
 
+        const duplicatesSec = courseData.filter(
+            course =>
+                course.subject_id === item.subject_id &&
+
+                course.section === item.section
+        ).length > 1;
+
         /* if (duplicatesByTeacher || duplicatesByRoom || duplicatesBySubjectType) {
             return "bg-red-600";
         } */
@@ -225,6 +241,10 @@ function SubjectTable() {
 
         else if (duplicatesByTeacher) {
             return "bg-orange-600";
+        }
+
+        else if (duplicatesSec) {
+            return "bg-blue-600";
         }
 
         else if (duplicatesByRoom) {
@@ -431,25 +451,28 @@ function SubjectTable() {
                                 {[...Array(30)].map((_, index) => {
                                     const startTime = index * 0.5 + 7; // Calculate start time
                                     const endTime = startTime + 0.25; // Calculate end time
-                                    const subjects = courseData.filter(item =>
-                                        item.Day === day &&
-                                        item.start_time <= startTime &&
-                                        item.end_time >= endTime &&
-                                        (selectedRoom === "" || item.room_number.includes(selectedRoom.split(" (")[0])) &&
-                                        (selectedLecturer === "" || item.lecturer === selectedLecturer) &&
-                                        (selectedSubjectType === "" || item.type === selectedSubjectType) &&
-                                        (selectedMajorYear === "" || item.major_year.includes(selectedMajorYear)) &&
-                                        (selectedError === "" || selectedError === item.subject_id || (gettableClassname(item) === "bg-red-600" || gettableClassname(item) === "bg-orange-600" || gettableClassname(item) === "bg-yellow-600" || gettableClassname(item) === "bg-white-600" || gettableClassname(item) === "bg-blue-600" || gettableClassname(item) === "bg-green-600")))
+                                    
                                     return (
                                         <td key={index}>
-                                            {subjects.map(subject => (
-                                                <Link to={`/EditSubject?subjectID=${subject.subject_id}`} key={subject.subject_id}>
-                                                    <button style={{ width: "100%" }} className={gettableClassname(subject)}>
-                                                        {subject.subject_id}-{subject.school_year.slice(2, 4)}
-                                                        <br />
-                                                        {subject.subject_nameEN}
-                                                    </button>
-                                                </Link>
+                                            {courseData.filter(item =>
+                                                item.Day === day &&
+                                                item.start_time <= startTime &&
+                                                item.end_time >= endTime &&
+                                                (selectedRoom === "" || item.room_number.includes(selectedRoom.split(" (")[0])) &&
+                                                (selectedLecturer === "" || item.lecturer === selectedLecturer) &&
+                                                (selectedSubjectType === "" || item.type === selectedSubjectType) &&
+                                                (selectedMajorYear === "" || item.major_year.includes(selectedMajorYear)) &&
+                                                (selectedError === "" || selectedError === item.subject_id || (gettableClassname(item) === "bg-red-600" || gettableClassname(item) === "bg-orange-600" || gettableClassname(item) === "bg-yellow-600" || gettableClassname(item) === "bg-white-600" || gettableClassname(item) === "bg-blue-600" || gettableClassname(item) === "bg-green-600" || gettableClassname(item) === "bg-blue-600"))
+                                            ).map(item => (
+                                                <div key={item.subject_id}>
+                                                    <Link to={`/EditSubject?subjectID=${item.id}`}>
+                                                        <button style={{ width: "100%" }} className={gettableClassname(item)}>
+                                                            {item.subject_id}-{item.school_year.slice(2, 4)}
+                                                            <br />
+                                                            {item.subject_nameEN}
+                                                        </button>
+                                                    </Link>
+                                                </div>
                                             ))}
                                         </td>
                                     );
@@ -461,14 +484,15 @@ function SubjectTable() {
                 </table>
             </div>
             <div className='flex justify-between'>
-                <div class="grid grid-cols-3 gap-3 font-semibold">
+                <div class="grid grid-cols-6 gap-6 text-sm">
                     <div>หมายเหตุข้อผิดพลาด</div>
                     <div className='text-red-600'>*สีแดง คือ วิชา</div>
                     <div className='text-orange-600'>*สีส้ม คือ อาจารย์</div>
-                    <div></div>
 
                     <div className='text-green-600'>*สีเขียว คือ ห้อง</div>
                     <div className='text-yellow-600'>*สีเหลือง คือ ประเภท</div>
+
+                    <div className='text-blue-600'>*สีน้ำเงิน คือ เซค</div>
                 </div>
                 <button className="bg-rose-color font-semibold text-white mt-2 p-1 rounded-full w-1/6 hover:bg-red-900 active:bg-neutral-800 shadow-md"
                     onClick={generatePDF}>
@@ -484,12 +508,13 @@ function SubjectTable() {
                             <th>รหัสวิชา</th>
                             <th>ชื่อวิชา</th>
                             <th>หน่วยกิต</th>
-                            <th>การสอน</th>
+                            <th>ประเภท</th>
+                            <th>หมู่เรียน</th>
                             <th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th>
                             <th>ห้อง</th>
                             <th>จำนวน</th>
                             <th>ชื่ออาจารย์</th>
-                            <th>ประเภท</th>
+                            <th>หมวด</th>
                             <th>ชั้นปี</th>
                         </tr>
                     </thead>
@@ -500,30 +525,31 @@ function SubjectTable() {
                                 (selectedLecturer === "" || item.lecturer === selectedLecturer) &&
                                 (selectedSubjectType === "" || item.type === selectedSubjectType) &&
                                 (selectedMajorYear === "" || item.major_year.includes(selectedMajorYear)) &&
-                                (selectedError === "" || (gettableClassname(item) === "bg-red-600" || gettableClassname(item) === "bg-orange-600" || gettableClassname(item) === "bg-yellow-600" || gettableClassname(item) === "bg-green-600"))
+                                (selectedError === "" || (gettableClassname(item) === "bg-red-600" || gettableClassname(item) === "bg-orange-600" || gettableClassname(item) === "bg-yellow-600" || gettableClassname(item) === "bg-green-600" || gettableClassname(item) === "bg-blue-600"))
 
                             )
                             .map((item) => (
                                 <tr key={item.subject_id} className={getClassname(item)}>
 
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderDay(item.Day)}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.subject_id}-{item.school_year.slice(2, 4)}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.subject_nameEN}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.credit}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{renderDay(item.Day)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{item.subject_id}-{item.school_year.slice(2, 4)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{item.subject_nameEN}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{item.credit}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>
                                         {item.group === 1
                                             ? "บรรยาย"
                                             : item.group === 2
                                                 ? "ปฎิบัติ"
                                                 : ""}</Link>
                                     </td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderTime(item.start_time)}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderTime(item.end_time)}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.room_number}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.student_count}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.lecturer}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{renderSubjectType(item.type)}</Link></td>
-                                    <td><Link to={`/EditSubject?subjectID=${item.subject_id}`}>{item.major_year}</Link></td>
+                                    <td>{item.section}</td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{renderTime(item.start_time)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{renderTime(item.end_time)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{item.room_number}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{item.student_count}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{item.lecturer}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{renderSubjectType(item.type)}</Link></td>
+                                    <td><Link to={`/EditSubject?subjectID=${item.id}`}>{item.major_year}</Link></td>
 
                                 </tr>
                             ))}
