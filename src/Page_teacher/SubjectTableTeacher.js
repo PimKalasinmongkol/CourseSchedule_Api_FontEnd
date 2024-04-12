@@ -364,6 +364,7 @@ function SubjectTableTeacher() {
 
             </div>
             <div className='flex'>
+                
                 <table>
                     <thead>
                         <tr>
